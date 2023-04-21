@@ -1,0 +1,232 @@
+﻿@model Recipe
+
+<div class="container col-md-8 offset-md-2">
+    <h2 class="text-primary">Edit Recipe</h2>
+    <form id="editForm" method="post">
+        <input name="Id" class="visually-hidden" value="@Model.Id" />
+
+        <div class="form-group mb-3">
+            <label asp-for="Title" class="col-form-label-lg mb-2 text-light"></label>
+            <input asp-for="Title" class="form-control" placeholder="Title" required/>
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label asp-for="Type" class="col-form-label-lg label-control text-light"></label>
+        
+            <div class="form-group mb-3">
+                @{var isFirstChecked = false;}
+                @foreach (RecipeType type in Enum.GetValues(typeof(RecipeType)))
+                {
+                    <input class="form-check-input" type="radio" name="type" value="@type" @(isFirstChecked ? "" : "checked") />
+                    <label asp-for="Type" class="form-check-label text-light">@type</label>
+                    isFirstChecked = true;
+                }
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group mb-3">
+            <label asp-for="Description" class="col-form-label-lg mb-2 text-light"></label>
+            <textarea asp-for="Description" class="form-control" placeholder="Description" required></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label asp-for="ImageUrl" class="col-form-label-lg mb-2 text-light"></label>
+            <input asp-for="ImageUrl" class="form-control" placeholder="www.Example.com" required/>
+            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Ingredients" class="col-form-label-lg text-light"></label>
+            <div id="ingredientList">
+                @for (var i = 0; i < Model.Ingredients.Count; i++)
+                {
+                    <input name="Ingredients[@i].Id" class="visually-hidden" value="@Model.Ingredients[i].Id"/>
+
+                    <div id="ingredientRow" class="row">
+                        <div class="form-text col-7">
+                            <input name="Ingredients[@i].Name" class="form-control" placeholder="Name" value="@Model.Ingredients[i].Name" required />
+                        </div>
+                        <div class="form-text col-2">
+                            <input name="Ingredients[@i].Amount" type="number" step=".001" class="form-control" placeholder="0.00" value="@Model.Ingredients[i].Amount" required />
+                        </div>
+                        <div class="form-text col-2">
+                            <input name="Ingredients[@i].Unit" class="form-control" placeholder="Unit" value="@Model.Ingredients[i].Unit" required />
+                        </div>
+                        <div class="col-1">
+                            <div class="form-text d-flex justify-content-center">
+                                <button id="removeIngredientBtn" type="button" class="btn btn-danger ingredientBtn" onclick="removeIngredient(this)" disabled>X</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col text-center">
+                    <button type="button" class="btn btn-primary fw-bold" style="width:100px" onclick="addIngredient()">ADD</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Directions" class="col-form-label-lg text-light"></label>
+            <div id="directionList">
+                @for (var i = 0; i < Model.Directions.Count; i++)
+                {
+                    <input name="Directions[@i].Id" class="visually-hidden" value="@Model.Directions[i].Id" />
+
+                    <div id="directionRow" class="row">
+                        <div class="form-text col-11">
+                            <input name="Directions[@i].DirectionText" class="form-control" placeholder="Step" value="@Model.Directions[i].DirectionText" required />
+                        </div>
+                        <div class="col-1">
+                            <div class="form-text d-flex justify-content-center">
+                                <button id="removeDirectionBtn" type="button" class="btn btn-danger directionBtn" onclick="removeDirection(this)" disabled>X</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col text-center">
+                    <button type="button" class="btn btn-primary fw-bold" style="width:100px" onclick="addDirection()">ADD</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mt-5 text-center">
+            <button type="submit" id="btnSubmit" class="btn btn-primary" style="width:150px">Save</button>
+            <a asp-controller="Recipe" asp-action="Index" class="btn btn-secondary" style="width:150px">
+                Back to list
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    var ingredientCount = @Model.Ingredients.Count;
+    var ingredientVisible = @Model.Ingredients.Count;
+    var directionCount = @Model.Directions.Count;
+    var directionVisible = @Model.Directions.Count;
+
+    window.addEventListener("DOMContentLoaded", (event) => {
+        $(function () {
+            $(document).off('click', '#btnSubmit').on('click', '#btnSubmit', function (e) {
+                e.preventDefault();
+                var data = $("#editForm").serialize();
+
+                $.ajax({
+                    url: "/Recipe/Edit",
+                    type: "POST",
+                    dataType: "json",
+                    data: data,
+                    contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                    success: function (response) {
+                        if (response.success) {
+                            window.location.href = '@Url.Action("Get", "Recipe", new {id = Model.Id})'
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:', exception);
+                    }
+                });
+            });
+
+            if (@Model.Ingredients.Count > 0) {
+                $(".ingredientBtn").each(function () {
+                    $(this).prop('disabled', false);
+                });
+            }
+
+            if (@Model.Directions.Count > 0) {
+                $(".directionBtn").each(function () {
+                    $(this).prop('disabled', false);
+                });
+            }
+        });
+    });
+
+
+    function addIngredient() {
+        var clone = $('#ingredientRow').clone();
+        clone.css('display', 'flex');
+        var inputs = clone.find('input');
+        inputs[0].name = "Ingredients[" + ingredientCount + "].Name";
+        inputs[0].value = "";
+        inputs[1].name = "Ingredients[" + ingredientCount + "].Amount";
+        inputs[1].value = "";
+        inputs[2].name = "Ingredients[" + ingredientCount + "].Unit";
+        inputs[2].value = "";
+
+        $("#ingredientList").append(clone);
+
+        if (ingredientVisible == 1) {
+            $('#ingredientList *').prop('disabled', false);
+        }
+        ingredientCount++;
+        ingredientVisible++;
+    }
+
+    function removeIngredient(button) {
+        //Hide row
+        var row = button.closest('#ingredientRow');
+        row.style.display = 'none';
+
+        //Remove required and set val to null
+        $(row).find(".form-control").each(function () {
+            $(this).removeAttr("required");
+            $(this).required = false;
+            $(this).val(null);
+        });
+
+        ingredientVisible--;
+
+        //Disable remove button if only 1 row
+        if (ingredientVisible == 1) {
+            $('.ingredientBtn').attr('disabled', true);
+        }
+    }
+
+    function addDirection() {
+        var clone = $('#directionRow').clone();
+        clone.css('display', 'flex');
+        clone.find('input').each(function () {
+            this.name = "Directions[" + directionCount + "].DirectionText";
+            this.value = "";
+        });
+
+        $("#directionList").append(clone);
+
+        if (directionVisible == 1) {
+            $('#directionList *').prop('disabled', false);
+        }
+        directionCount++;
+        directionVisible++;
+    }
+
+    function removeDirection(button) {
+        //Hide row
+        var row = button.closest('#directionRow');
+        row.style.display = 'none';
+
+        //Remove required and set val to null
+        $input = $(row).find("input");
+        $input.removeAttr("required");
+        $input.required = false;
+        $input.val(null);
+
+        directionVisible--;
+
+        //Disable remove button if only 1 row
+        if (directionVisible == 1) {
+            $('.directionBtn').attr('disabled', true);
+        }
+    }
+</script>

@@ -1,0 +1,85 @@
+﻿@model Recipe
+
+@{
+    ViewData["Title"] = Model.Title + " Recipe";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Page</title>
+</head>
+<body>
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLiveLabel" style="display: hidden;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLiveLabel"><font class="text-danger">Delete</font> @Model.Title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this recipe?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a asp-controller="Recipe" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger" style="width:100px">
+                        Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container px-4 text-light">
+        <div class="col-12">
+            <img src="@Model.ImageUrl" alt="Recipe Image" class="rounded mx-auto my-5 d-block w-75">
+            <div class="row">
+                <div class="col-8">
+                    <h1 class="fw-bold fs-2 mb-4">@Model.Title</h1>
+                </div>
+                <div class="col-4 text-center">
+                    <a asp-controller="Recipe" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        Delete
+                    </button>
+                </div>
+            </div>
+
+            <p class="lead mb-5">@Model.Description</p>
+
+            <div class="row mb-5">
+                <div class="col-5">
+                    <h2 class="fw-bold fs-4 mb-3">Ingredients:</h2>
+                    <table class="table">
+                        @foreach (var ingredient in Model.Ingredients)
+                        {
+                            <tr class="row text-light">
+                                <td class="col-8">@ingredient.Name</td>
+                                <td class="col-4">@ingredient.Amount @ingredient.Unit</td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+                <div class="col-2"></div>
+                <div class="col-5">
+                    <h2 class="fw-bold fs-4 mb-3">Directions:</h2>
+                    <table class="table">
+                        @foreach (var direction in Model.Directions)
+                        {
+                            <tr class="row text-light">
+                                <td>@direction.DirectionText</td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+</script>

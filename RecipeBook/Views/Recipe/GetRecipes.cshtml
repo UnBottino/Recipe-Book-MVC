@@ -1,0 +1,66 @@
+﻿
+@model IEnumerable<Recipe>
+@{
+    ViewData["Title"] = "Get Recipe";
+}
+
+<h1>Get Recipes</h1>
+
+<table class="table table-bordered table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>
+                Recipe Title
+            </th>
+            <th>
+                Recipe Type
+            </th>
+            <th>
+                Recipe Description
+            </th>
+            <th>
+                Recipe ImageUrl
+            </th>
+            <th>
+                Recipe Ingredient
+            </th>
+            <th>
+                Recipe Direction
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var r in Model)
+        {
+            <tr>
+                <td width="20%">
+                    @r.Title
+                </td>
+                <td>
+                    @r.Type
+                </td>
+                <td>
+                    @r.Description
+                </td>
+                <td>
+                    @r.ImageUrl
+                </td>
+
+                @foreach(var ingredient in r.Ingredients)
+                {
+                    <td>
+                        @ingredient.Name
+                    </td>
+                }
+
+                @foreach (var direction in r.Directions)
+                {
+                    <td>
+                        @direction.DirectionText
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+

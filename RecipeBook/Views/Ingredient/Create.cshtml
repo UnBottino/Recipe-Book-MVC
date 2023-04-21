@@ -1,0 +1,11 @@
+﻿@model Recipe
+
+@Html.HiddenFor(model => model.Ingredients[0].Name)
+@Html.HiddenFor(model => model.Ingredients[0].Amount)
+@Html.HiddenFor(model => model.Ingredients[0].Unit)
+
+if (Model.Ingredients[i].Id == 1)
+{
+    @Html.LabelFor(model => model.Ingredients[0].Name, new {})
+    @Html.TextBoxFor(model => model.Ingredients[0].Name, new { @class = "form-control" })
+}

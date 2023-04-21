@@ -1,0 +1,20 @@
+﻿@model IEnumerable<Recipe>
+
+<div class="row row-cols-auto gx-4 gy-5">
+    @for(var i = 0; i < 5; i++)
+    {
+        @foreach (var recipe in Model)
+        {
+            <div class="col mx-auto">
+                <div class="shadow card h-100 mt-4" style="width: 18rem;">
+                    <img class="card-img-top" src="@Html.Raw(recipe.ImageUrl)" alt="Card image cap">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">@recipe.Title</h5>
+                        <p class="card-text">@recipe.Description</p>
+                        <a asp-controller="Recipe" asp-action="Get" asp-route-id="@recipe.Id" class="btn btn-primary w-75 h-25">View</a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
